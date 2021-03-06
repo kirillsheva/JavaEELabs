@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Books</title>
+    <meta content="width=device-width, initial-scale=1" name="viewport">
+    <script crossorigin="anonymous" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+</head>
+<body>
+<h3>Search:</h3>
+<input id="search" type="text">
+            <table border="1">
+                <thead >
+                <tr >
+                    <th >ISBN</th>
+                    <th >Title</th>
+                    <th >Author</th></tr>
+                </thead>
+                <tbody id="list">
+                </tbody>
+            </table>
+                    <form id="add" method="post">
+                            <h3>Book's ISBN</h3>
+                            <input id="isbn" name="isbn" required type="text"/>
+                            <h3 >Book's title</h3>
+                            <input id="title" name="title" required type="text">
+                            <h3>Book's author</h3>
+                            <input id="author" name="author" required type="text">
+                        <button type="submit" style=" background-color: #4CAF50; border: none; color: white; padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;
+                         font-size: 16px;margin-top: 15px">Send</button>
+                    </form>
+
+<script>
+    window.onload = function () {
+        getList();
+    };
+    function getList() {
+        $.get('/List', (data) => {
+            listBooks(data)
+        });
+    }
+            $("#add").submit(function (event) {
+                    event.preventDefault();
+                    $.ajax({
+                        url: '/List/',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({isbn: $('#isbn').val(), title: $('#title').val(), author: $('#author').val()}),
+                        success: () => {
+                            getList();
+                        },
+                        error: (err) => {
+                            if (err.status === 409)
+                                alert('ISBN ALREADY EXISTS')
+                        }
+                    });
+            });
+
+    function getSearched(query = "") {
+        $.get('/List?value=' + query, (data) => {
+            listBooks(data)
+        });
+    }
+    $("#search").keyup(function () {
+        let query = $("input").val();
+        console.log(query)
+        getSearched(query)
+    });
+    function listBooks(books) {
+        let booksList = $('#list');
+        booksList.empty();
+        for (let i = 0; i < books.length; i++) {
+            let book = books[i];
+            booksList.append(
+                `<tr>
+                    <td >${book.isbn}</td>
+                    <td >${book.title}</td>
+                    <td >${book.author}</td>
+                </tr>`
+            )
+        }
+    }
+</script>
+
+</body>
+</html>
