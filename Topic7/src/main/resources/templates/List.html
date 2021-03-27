@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table border="1" width="100%">
+    <thead>
+    <td>Назва книги</td>
+    <td>ISBN</td>
+    <td>Автор</td>
+    </thead>
+    <tr th:each="book: ${bookStorage}">
+        <td th:text="${book.title}"></td>
+        <td th:text="${book.isbn}"></td>
+        <td th:text="${book.author}"></td>
+    </tr>
+</table>
+<br>
+<form action="/" method="get">
+    <button type="submit" style=" background-color: #4CAF50; border: none; color: white; padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px">Back to the add page</button>
+</form>
+
+<form action="/filtered-book-list" method="get">
+    <br>
+    Filter
+    <br>
+    Value: <input name="value">
+    <br>
+    <select name="type">
+        <option value='0'> Name</option>
+        <option value='1'> ISBN</option>
+        <option value='2'> Author</option>
+        <option value='3'> Name&ISBN</option>
+    </select>
+    <button type="submit" style=" background-color: #69af64; border: none; color: white; padding: 1px 12px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px">Search</button>
+    <br>
+</form>
+<form action="/exact-book" method="post">
+    Book index: <input type="number" name="bookId">
+    <br>
+    <button type="submit" style=" background-color: #4CAF50; border: none; color: white; padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px">Go to the book page</button>
+</form>
+
+
+</body>
+</html>
