@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Index</title>
+</head>
+<body>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <button id="login" style=" background-color: #26af00; border: none; color: white; padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px"  th:if="${#authorization.expression('!isAuthenticated()')}">Sign In</button>
+    <button id="signup" style=" background-color: #4caf50; border: none; color: white; padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px" th:if="${#authorization.expression('!isAuthenticated()')}">Sign Up</button>
+    <button id="logout" style=" background-color: #af1800; border: none; color: white; padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px" th:if="${#authorization.expression('isAuthenticated()')}">Sign Out</button>
+<form id="addForm" th:if="${#authorization.expression('hasAuthority(''ADMIN'')')}">
+    Add book
+    <br>
+    <input name="bookname" placeholder="Name">
+    <br />
+    <input name="isbn" placeholder="ISBN">
+    <br />
+    <input name="author" placeholder="Author">
+    <br>
+    <button type="submit">Add Book</button>
+</form>
+<form  id="filterForm">
+    <br>
+    Filter
+    <br>
+    <input name="val" placeholder="Value">
+    <br>
+    <select name="typ">
+        <option value='0'> Name</option>
+        <option value='1' > ISBN</option>
+        <option value='2'> Author</option>
+        <option value='3'> Name&ISBN</option>
+    </select>
+    <br>
+<button style=" background-color: #6aaf61; border: none; color: white; padding: 6px 10px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px" type="submit">Filter</button>
+    <br>
+</form>
+<button id="getFavorites"  style=" background-color: #63afa9; border: none; color: white; padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px" th:if="${#authorization.expression('isAuthenticated()')}">Get Favorite Books</button>
+<button id="getAll" style=" background-color: #4CAF50; border: none; color: white; padding: 15px 32px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px">Get All Books</button>
+<table border="1" width="100%">
+    <thead>
+    <td>Bookname</td>
+    <td>Author</td>
+    <td>ISBN</td>
+    <td>Details</td>
+    </thead>
+   <tbody id="bookTable"></tbody>
+</table>
+<br>
+<script>
+    $(function(){
+        $('#addForm').submit(function(e){
+            e.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: '/booklist',
+                dataType: 'json',
+                data: JSON.stringify({
+                    name: $(this).find('[name=bookname]').val(),
+                    isbn: $(this).find('[name=isbn]').val(),
+                    author: $(this).find('[name=author]').val()
+                }),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Content-Type', 'application/json')
+                },
+                success: function (response) {
+
+                   var $table=$('#bookTable');
+                    $table.append('<tr><td>' + response.name + '</td><td>' + response.isbn + '</td><td>' + response.author + '</td></tr>')
+                }
+            });
+        });
+        $('#filterForm').submit(function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                type: 'GET',
+                url: '/booklist',
+                dataType: 'json',
+                data: {
+                    valu: $(this).find('[name=val]').val(),
+                    typ: $(this).find('[name=typ]').val()
+                },
+                success: function (response) {
+                    var $books = $('#bookTable');
+                    $books.empty();
+                    response.forEach(function(book) {
+                        $books.append('<tr><td>' + book.name + '</td><td>' + book.isbn + '</td><td>' + book.author + '</td><td><a href=\"/book_page/' + book.id + '\">Details</a></tr>');
+
+                    })
+                }
+            });
+        });
+        $(function() {
+            $(document).ready(function () {
+                $.ajax({
+                    type: 'GET',
+                    url: '/booklist',
+                    success: function (response) {
+                        var $table = $('#bookTable');
+                        $table.empty();
+                        response.forEach(function (book) {
+                            $table.append('<tr><td>' + book.name + '</td><td>' + book.isbn + '</td><td>' + book.author + '</td><td><a href=\"/book_page/' + book.id + '\">Details</a></tr>');
+
+                        }
+                        )
+                    }
+                });
+            });
+        });
+        $('#getAll').click(function(){
+
+            $.ajax({
+                type: 'GET',
+                url: '/booklist',
+                success: function (response) {
+                    var $table = $('#bookTable');
+                    $table.empty();
+                    response.forEach(function(book) {
+                        $table.append('<tr><td>' + book.name + '</td><td>' + book.isbn + '</td><td>' + book.author + '</td><td><a href=\"/book_page/' + book.id + '\">Details</a></tr>');
+
+                    })
+                }
+            });
+        });
+        $('#getFavorites').click(function(){
+
+            $.ajax({
+                type: 'GET',
+                url: '/booklist/favorites',
+                success: function (response) {
+                    var $table = $('#bookTable');
+                    $table.empty();
+                    response.forEach(function(book) {
+                        $table.append('<tr><td>' + book.name + '</td><td>' + book.isbn + '</td><td>' + book.author + '</td><td><a href=\"/book_page/' + book.id + '\">Details</a></tr>');
+                    })
+                }
+            });
+        });
+        $('#signup').click(function () {
+            location.href = location.href + "signup_page";
+        });
+        $('#login').click(function () {
+            location.href = location.href + "login";
+        });
+        $('#logout').click(function () {
+            location.href = location.href + "logout";
+        });
+    });
+</script>
+
+</body>
+</html>

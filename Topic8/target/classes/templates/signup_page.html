@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up</title>
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+    <form id="signupForm">
+        <input type="text" placeholder="Enter Login Here" name="login"/><br>
+        <input type="password" placeholder="Enter Password Here" name="password"/><br>
+        <input type="submit" style=" background-color: #4CAF50; border: none; color: white; padding: 7px 14px;text-align: center;text-decoration: none;display: inline-block;
+  font-size: 16px;margin-top: 15px" value="Sign Up"/><br>
+        <div id="message" style="color: red; font-size:20px"></div>
+    </form>
+<script>
+    $(function() {
+
+        $('#signupForm').submit(function(e) {
+            e.preventDefault();
+            console.log("registering");
+            $.ajax({
+                type: 'POST',
+                url: '/signup',
+                data: JSON.stringify({
+                    login: $(this).find('[name=login]').val(),
+                    password: $(this).find('[name=password]').val()
+                }),
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader('Content-Type', 'application/json')
+                },
+                success: function (r) {
+                    location.href = "/login";
+                },
+                error: function (r) {
+                    $('#message').text(r.responseText);
+                }
+            });
+        });
+    });
+</script>
+</body>
+</html>
